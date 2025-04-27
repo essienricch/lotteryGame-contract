@@ -2,12 +2,12 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "../src/SampleGame.sol"; // change SampleGame to LotteryGame
+import "../src/LotteryGame.sol"; // change SampleGame to LotteryGame
 
-contract SampleGameTest is
+contract LotteryGameTest is
     Test // change SampleGame to LotteryGame
 {
-    SampleGame public game; // change SampleGame to LotteryGame
+    LotteryGame public game; // change SampleGame to LotteryGame
     address public owner;
     address public player1;
     address public player2;
@@ -24,7 +24,7 @@ contract SampleGameTest is
         vm.deal(player2, 1 ether);
         vm.deal(player3, 1 ether);
 
-        game = new SampleGame(); // change SampleGame to LotteryGame
+        game = new LotteryGame(); // change SampleGame to LotteryGame
     }
 
     function testRegisterWithCorrectAmount() public {
@@ -95,7 +95,7 @@ contract SampleGameTest is
     }
 
     function testDistributePrizesNoWinners() public {
-        vm.expectRevert("No winners to distribute prizes to");
+        vm.expectRevert("There are no price winners to distribute prizes to");
         game.distributePrizes();
     }
 }

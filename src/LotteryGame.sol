@@ -18,10 +18,20 @@ contract LotteryGame {
     // - Array for winners
     // - Array for previous winners
 
+    mapping(address => Player) public players;
+    address[] public playerAddresses;
+    uint256 public totalPrize;
+    address[] public winners;
+    address[] public prevWinners;
+
     // TODO: Declare events
     // - PlayerRegistered
     // - GuessResult
     // - PrizesDistributed
+
+    event PlayerRegistered(address indexed player);
+    event GuessResult(address indexed player, bool success);
+    event PrizesDistributed(address[] winners, uint256 prizeAmount);
 
     /**
      * @dev Register to play the game
@@ -34,6 +44,17 @@ contract LotteryGame {
         // - Add player address to array
         // - Update total prize
         // - Emit registration event
+        require(msg.value == 0.02 ether, "Please stake 0.02 ETH");
+        require(!players[msg.sender].active, "Player already registered");
+
+        players[msg.sender] = Player({
+            attempts: 0,
+            active: true
+        });
+        playerAddresses.push(msg.sender);
+        totalPrize += msg.value;
+
+        emit PlayerRegistered(msg.sender);
     }
 
     /**
@@ -49,6 +70,21 @@ contract LotteryGame {
         // - Update player attempts
         // - Handle correct guesses
         // - Emit appropriate event
+        require(guess >= 1 && guess <= 9, "Number must be between 1 and 9");
+        Player storage player = players[msg.sender];
+        require(player.active, "Player is not active");
+        require(player.attempts < 2, "Player has already made 2 attempts");
+
+        uint256 randomNumber = _generateRandomNumber();
+        player.attempts++;
+
+        if (guess == randomNumber) {
+            winners.push(msg.sender);
+            player.active = false; // Deactivate after correct guess
+            emit GuessResult(msg.sender, true);
+        } else {
+            emit GuessResult(msg.sender, false);
+        }
     }
 
     /**
@@ -61,6 +97,24 @@ contract LotteryGame {
         // - Update previous winners list
         // - Reset game state
         // - Emit event
+        require(winners.length > 0, "There are no price winners to distribute prizes to");
+
+        uint256 prizePerWinner = totalPrize / winners.length;
+
+        for (uint256 i = 0; i < winners.length; i++) {
+            address winner = winners[i];
+            payable(winner).transfer(prizePerWinner);
+            prevWinners.push(winner);
+        }
+
+        for (uint256 i = 0; i < playerAddresses.length; i++) {
+            delete players[playerAddresses[i]];
+        }
+        delete playerAddresses;
+        delete winners;
+        totalPrize = 0;
+
+        emit PrizesDistributed(prevWinners, prizePerWinner);
     }
 
     /**
@@ -69,6 +123,7 @@ contract LotteryGame {
      */
     function getPrevWinners() public view returns (address[] memory) {
         // TODO: Return previous winners array
+        return prevWinners;
     }
 
     /**
