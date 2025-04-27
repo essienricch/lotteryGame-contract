@@ -1,5 +1,9 @@
 # Solidity Smart Contract Assignment: LotteryGame
 
+## Contract Address
+
+0x563E904f548ddf3E9D8d61596478777306f4D673
+
 ## Overview
 
 In this assignment, you will implement a simple Ethereum-based lottery game where players can register, make guesses, and potentially win ETH prizes. This exercise will help you practice Solidity development fundamentals including:
